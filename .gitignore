@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+.pytest_cache/
+
+# VS Code
+.vscode/
+.history/
+
+# Virtual envs
+.venv/
+venv/
+
+# OS junk
+.DS_Store
+
+# Local config
+.env
+
+# Outputs & data (keep repo small)
+out/
+data/
