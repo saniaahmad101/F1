@@ -1,14 +1,9 @@
-# Python
 __pycache__/
 .venv/
 *.pyc
-
-# Outputs & caches
 out/
 fastf1_cache/
 tableau_out*/
 tableau_out_pandas_numpy_mega/
-
-# OS/editor files
 .DS_Store
 .vscode/
