@@ -1,26 +1,14 @@
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.egg-info/
-.eggs/
-.pytest_cache/
-
-# VS Code
-.vscode/
-.history/
-
-# Virtual envs
 .venv/
-venv/
+*.pyc
 
-# OS junk
-.DS_Store
-
-# Local config
-.env
-
-# Outputs & data (keep repo small)
+# Outputs & caches
 out/
-data/
+fastf1_cache/
+tableau_out*/
+tableau_out_pandas_numpy_mega/
+
+# OS/editor files
+.DS_Store
+.vscode/
