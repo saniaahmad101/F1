@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import MaxNLocator
 
-# Optional FastF1
 try:
     import fastf1
     import fastf1.plotting as f1plot
@@ -20,7 +19,6 @@ try:
 except Exception:
     FASTF1_AVAILABLE = False
 
-# ===== Paths & Theme =====
 ROOT = Path(__file__).parent.resolve()
 DATA_DIR = (ROOT / "data") if (ROOT / "data").exists() else Path(os.getenv("DATA_DIR", ROOT))
 OUT_DIR  = ROOT / "out"
@@ -56,7 +54,6 @@ FILE_MAP = {
     "status": "status.csv",
 }
 
-# ===== I/O helpers =====
 def load_csv(name: str) -> Optional[pd.DataFrame]:
     p = DATA_DIR / FILE_MAP.get(name, "")
     return pd.read_csv(p) if p.exists() else None
@@ -78,7 +75,6 @@ def note_figure(title: str, note: str, filename: str):
     ax.text(0.01, 0.5, note, transform=ax.transAxes)
     savefig(fig, filename)
 
-# ===== Load base tables =====
 circuits              = load_csv("circuits")
 constructors          = load_csv("constructors")
 constructor_results   = load_csv("constructor_results")
@@ -94,19 +90,16 @@ seasons               = load_csv("seasons")
 sprint_results        = load_csv("sprint_results")
 status_tbl            = load_csv("status")
 
-# Basic enrichments / column normalizations
 if drivers is not None and {"forename","surname"}.issubset(drivers.columns):
     drivers["driver"] = drivers[["forename","surname"]].fillna("").agg(" ".join, axis=1).str.strip()
 
 if constructors is not None and "name" in constructors.columns:
     constructors = constructors.rename(columns={"name":"constructor"})
 
-# Make sure races has a 'year' column (some dumps use 'season')
 if races is not None:
     if "year" not in races.columns and "season" in races.columns:
         races = races.rename(columns={"season": "year"})
 
-# ===== Year utilities =====
 def get_year_bounds() -> Tuple[int,int]:
     if races is not None and "year" in races.columns:
         yrs = pd.to_numeric(races["year"], errors="coerce").dropna().astype(int)
@@ -129,7 +122,6 @@ def filter_year_span(df: pd.DataFrame, y0: int, y1: int) -> pd.DataFrame:
         df = df[(df["year"] >= y0) & (df["year"] <= y1)]
     return df
 
-# ===== Dashboard-equivalent DATA =====
 def data_top_constructor_points(y0: int, y1: int) -> pd.DataFrame:
     if constructor_standings is None or races is None or constructors is None:
         write_note("top_constructor_by_points", "Need constructor_standings + races + constructors.")
@@ -315,7 +307,6 @@ def data_fastest_lap_by_season(y0: int, y1: int) -> pd.DataFrame:
     write_table(out, "fastest_lap_by_season")
     return out
 
-# ===== Extra analyses (warning-free) =====
 def data_constructor_consistency(y0: int, y1: int) -> pd.DataFrame:
     """
     Constructor consistency from results:
@@ -480,7 +471,6 @@ def data_constructor_yearly_trend(y0: int, y1: int) -> pd.DataFrame:
     write_table(out, f"constructor_yearly_trend_{y0}_{y1}")
     return out
 
-# ===== Reference plots (sanity only) =====
 def plot_reference_tables(y0: int, y1: int):
     t10 = data_top10_driver_points(y0, y1)
     if not t10.empty:
@@ -531,7 +521,6 @@ def plot_reference_tables(y0: int, y1: int):
         ax.set_title(f"Constructor Consistency ({y0}-{y1})", loc="left", fontweight="bold")
         savefig(fig, "constructor_consistency_scatter")
 
-# ===== FastF1 enrichment =====
 def setup_fastf1(cache_dir: Optional[Path] = None):
     if not FASTF1_AVAILABLE:
         print("[fastf1] Not installed; skip FastF1 enrichment.")
@@ -611,7 +600,6 @@ def ff1_session_summary(year: int, gp_name: str = "Bahrain Grand Prix", session:
 
     return stint_agg, pace, deg
 
-# ===== Orchestration =====
 def run_ergast_block(y0: int, y1: int, with_plots: bool = True, extras: str = "none"):
     print(f"[ergast] Analyzing {y0}-{y1} from: {DATA_DIR}")
     tc  = data_top_constructor_points(y0, y1)
@@ -659,7 +647,6 @@ def run_fastf1_block(years: Iterable[int], gp_name: str, session: str = "R"):
             write_table(best, f"ff1_{yr}_best_compound_per_driver_{gp_name.replace(' ','_')}")
             print(f"  Saved FastF1 tables for {yr} {gp_name}.")
 
-# ===== CLI =====
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="F1 analysis pipeline (CSV + optional FastF1).")
     p.add_argument("--y0", type=int, default=YEAR_MIN, help=f"Start year (default {YEAR_MIN})")
